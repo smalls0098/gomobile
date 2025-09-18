@@ -271,14 +271,13 @@ func buildJar(w io.Writer, srcDir, targetPkg string) error {
 			}
 			if filepath.Ext(path) == ".java" {
 				srcFiles = append(srcFiles, filepath.Join(".", path[len(srcDir):]))
-			}
-			if strings.Contains(path, "LoadJNI.java") {
+
 				content, err := os.ReadFile(path)
 				if err != nil {
 					return err
 				}
-				content = bytes.Replace(content, []byte(DefaultLibName), []byte(targetPkg), 1)
-				return os.WriteFile(targetPkg, content, 775)
+				content = bytes.ReplaceAll(content, []byte(fmt.Sprintf(`"%s"`, DefaultLibName)), []byte(fmt.Sprintf(`"%s"`, targetPkg)))
+				return os.WriteFile(path, content, 775)
 			}
 			return nil
 		})
